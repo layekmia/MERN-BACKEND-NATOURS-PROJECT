@@ -1,6 +1,7 @@
 const APIFeatures = require("../utils/apiFeatures");
 const AppError = require("../utils/appError");
 
+// This work because of clouser in JavaScript;
 exports.deleteOne = (Model) => async (req, res, next) => {
   try {
     const doc = await Model.findByIdAndDelete(req.params.id);
@@ -67,6 +68,7 @@ exports.getOne = (Model, popOptions) => async (req, res, next) => {
 };
 
 exports.getAll = (Model) => async (req, res, next) => {
+
   try {
     // To allow for nested GET reviews on tour (small hack)
     let filter = {};
