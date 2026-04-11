@@ -21,7 +21,11 @@ const reviewSchema = new mongoose.Schema(
       required: [true, "Review must belong to a user"],
     },
   },
-  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  },
 );
 
 // Prevent duplicate reviews from same user

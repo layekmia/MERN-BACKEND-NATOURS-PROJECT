@@ -8,6 +8,7 @@ const {
   deleteMe,
   getMe,
 } = require("../controllers/user.controller");
+
 const {
   signUp,
   login,
@@ -15,6 +16,7 @@ const {
   resetPassword,
   updatePassword,
 } = require("../controllers/auth.controller");
+
 const protectRoute = require("../middleware/protectRoute");
 const restrictTo = require("../middleware/restrictTo");
 

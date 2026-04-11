@@ -28,6 +28,7 @@ const handleJwtExpireError = (err) => {
   const value = `Your token is expired please login again : ${err.message}`;
   return new AppError(value, 401);
 };
+
 exports.globalErrorHandler = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";

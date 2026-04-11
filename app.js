@@ -27,6 +27,7 @@ app.use(helmet());
 
 app.use(express.json());
 
+
 app.use(
   hpp({
     whitelist: [
@@ -50,6 +51,7 @@ const limiter = rateLimit({
 });
 app.use("/api", limiter);
 
+// serving static files
 app.use(express.static(`${__dirname}/public/`));
 
 app.get("/", (req, res) => {
