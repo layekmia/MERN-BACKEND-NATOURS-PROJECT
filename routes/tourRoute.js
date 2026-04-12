@@ -9,6 +9,8 @@ const {
   updateTour,
   getTourWithin,
   getDistances,
+  uploadToursImages,
+  resizeTourImages,
 } = require("../controllers/tour.controller");
 const { aliasTopTours } = require("../middleware/aliasTopTours");
 const protectRoute = require("../middleware/protectRoute");
@@ -40,11 +42,23 @@ router.route("/distances/:latlng/unit/:unit").get(getDistances);
 router
   .route("/")
   .get(getAllTours)
-  .post(protectRoute, restrictTo("admin"), createTour);
+  .post(
+    protectRoute,
+    restrictTo("admin"),
+    uploadToursImages,
+    resizeTourImages,
+    createTour,
+  );
 router
   .route("/:id")
   .get(getTour)
-  .patch(protectRoute, restrictTo("admin"), updateTour)
+  .patch(
+    protectRoute,
+    restrictTo("admin"),
+    uploadToursImages,
+    resizeTourImages,
+    updateTour,
+  )
   .delete(protectRoute, restrictTo("admin", "lead-guide"), deleteTour);
 
 module.exports = router;

@@ -7,6 +7,8 @@ const {
   updateMe,
   deleteMe,
   getMe,
+  uploadUserPhoto,
+  handleUserPhoto,
 } = require("../controllers/user.controller");
 
 const {
@@ -31,7 +33,7 @@ router.patch("/updatePassword", protectRoute, updatePassword);
 router.use(protectRoute); // It apply this middleware all the route in below
 
 router.get("/me", getMe, getUser);
-router.patch("/updateMe", updateMe);
+router.patch("/updateMe", uploadUserPhoto, handleUserPhoto, updateMe);
 router.delete("/deleteMe", deleteMe);
 
 // This route only for admin;

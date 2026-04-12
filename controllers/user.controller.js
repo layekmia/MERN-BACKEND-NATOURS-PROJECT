@@ -1,11 +1,53 @@
+const multer = require("multer");
+const cloudinary = require("../config/cloudinary");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
 const User = require("../model/userModel");
 const AppError = require("../utils/appError");
 const { filterObj } = require("../utils/helper");
 const factory = require("./handlerFactory");
 
-exports.getMe = (req, res, next) => {
-  req.params.id = req.user.id;
-  next();
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "users",
+    allowed_formats: ["jpg", "jpeg", "png"],
+    transformation: [
+      { width: 500, height: 500, crop: "fill", quality: "auto" },
+    ],
+  },
+});
+
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image")) {
+      cb(null, true);
+    } else {
+      cb(new AppError("Not an image! Please upload image", 400), false);
+    }
+  },
+});
+
+exports.uploadUserPhoto = upload.single("photo");
+
+exports.handleUserPhoto = async (req, res, next) => {
+  if (!req.file) return next();
+
+  try {
+    const user = req.user;
+
+    // Delete old image from Cloudinary
+    if (user.photo && user.photo !== "default.jpg") {
+      const publicId = user.photo.split("/upload/")[1].split(".")[0];
+
+      await cloudinary.uploader.destroy(publicId);
+    }
+
+    next();
+  } catch (err) {
+    next(err);
+  }
 };
 
 exports.updateMe = async (req, res, next) => {
@@ -14,18 +56,20 @@ exports.updateMe = async (req, res, next) => {
     if (req.body.password || req.body.confirmPassword)
       return next(
         new AppError(
-          "This route is not for password updates. please use / updateMyPassword route"
-        )
+          "This route is not for password updates. please use / updateMyPassword route",
+        ),
       );
     // 2) Filtered out unwanted fields names that are not allowed to be updated;
     const filteredBody = filterObj(req.body, "name", "email");
+    if (req.file) filteredBody.photo = req.file.path;
+
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
       filteredBody,
       {
         new: true,
         runValidators: true,
-      }
+      },
     );
     if (!updatedUser) return next(new AppError("User not found", 404));
 
@@ -33,6 +77,11 @@ exports.updateMe = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
 };
 
 exports.deleteMe = async (req, res, next) => {

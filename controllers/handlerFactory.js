@@ -68,7 +68,6 @@ exports.getOne = (Model, popOptions) => async (req, res, next) => {
 };
 
 exports.getAll = (Model) => async (req, res, next) => {
-
   try {
     // To allow for nested GET reviews on tour (small hack)
     let filter = {};

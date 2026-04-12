@@ -98,7 +98,7 @@ const tourSchema = new mongoose.Schema(
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  }
+  },
 );
 
 tourSchema.virtual("durationWeek").get(function () {
@@ -106,7 +106,7 @@ tourSchema.virtual("durationWeek").get(function () {
 });
 
 tourSchema.index({ price: 1, ratingAverage: -1 });
-tourSchema.index({ startLocation: '2dsphere' });
+tourSchema.index({ startLocation: "2dsphere" });
 
 // virtual populate
 tourSchema.virtual("reviews", {

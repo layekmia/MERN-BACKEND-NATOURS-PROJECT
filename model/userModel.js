@@ -17,7 +17,10 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       validate: [validator.isEmail, "Please provide a valid email"],
     },
-    photo: String,
+    photo: {
+      type: String,
+      default: "default.jpg",
+    },
     role: {
       type: String,
       enum: ["admin", "user", "guide", "lead-guide"],
@@ -45,7 +48,7 @@ const userSchema = new mongoose.Schema(
     passwordResetExpires: Date,
     active: { type: Boolean, default: true, select: false },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 userSchema.pre("save", async function () {
@@ -67,7 +70,7 @@ userSchema.pre(/^find/, function () {
 
 userSchema.methods.correctPassword = async function (
   candidatePassword,
-  userPassword
+  userPassword,
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };

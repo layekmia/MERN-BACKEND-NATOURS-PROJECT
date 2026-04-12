@@ -1,6 +1,137 @@
+const multer = require("multer");
+const sharp = require("sharp");
+const cloudinary = require("../config/cloudinary");
+
 const Tour = require("../model/tourModel");
 const factory = require("./handlerFactory");
 const AppError = require("../utils/appError");
+
+const multerStorage = multer.memoryStorage();
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image")) {
+    cb(null, true);
+  } else {
+    cb(new AppError("Not an image! Only image can upload", 404));
+  }
+};
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+exports.uploadToursImages = upload.fields([
+  { name: "imageCover", maxCount: 1 },
+  { name: "images", maxCount: 3 },
+]);
+
+exports.resizeTourImages = async (req, res, next) => {
+  if (!req.files || (!req.files.imageCover && !req.files.images)) return next();
+
+  try {
+    const tour = await Tour.findById(req.params.id);
+
+    // =========================
+    // 1) DELETE OLD COVER
+    // =========================
+    if (
+      req.files.imageCover &&
+      tour.imageCover &&
+      tour.imageCover.includes("cloudinary")
+    ) {
+      const publicId = tour.imageCover.split("/upload/")[1].split(".")[0];
+
+      await cloudinary.uploader.destroy(publicId);
+    }
+
+    // =========================
+    // 2) UPLOAD NEW COVER
+    // =========================
+    if (req.files.imageCover) {
+      const result = await cloudinary.uploader.upload_stream({
+        folder: "tours",
+        transformation: [
+          { width: 2000, height: 1333, crop: "fill", quality: "auto" },
+        ],
+      });
+
+      // ⚠️ stream handling
+      await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: "tours",
+            transformation: [
+              { width: 2000, height: 1333, crop: "fill", quality: "auto" },
+            ],
+          },
+          (error, result) => {
+            if (error) return reject(error);
+
+            req.body.imageCover = result.secure_url;
+            resolve(result);
+          },
+        );
+
+        stream.end(req.files.imageCover[0].buffer);
+      });
+    }
+
+    // =========================
+    // 3) DELETE OLD GALLERY
+    // =========================
+    if (req.files.images && tour.images?.length > 0) {
+      await Promise.all(
+        tour.images.map(async (img) => {
+          if (img.includes("cloudinary")) {
+            const publicId = img.split("/upload/")[1].split(".")[0];
+            await cloudinary.uploader.destroy(publicId);
+          }
+        }),
+      );
+    }
+
+    // =========================
+    // 4) UPLOAD NEW GALLERY
+    // =========================
+
+    if (req.files.images) {
+      req.body.images = [];
+
+      await Promise.all(
+        req.files.images.map(async (file) => {
+          await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+              {
+                folder: "tours",
+                transformation: [
+                  {
+                    width: 2000,
+                    height: 1333,
+                    crop: "fill",
+                    quality: "auto",
+                  },
+                ],
+              },
+              (error, result) => {
+                if (error) return reject(error);
+
+                req.body.images.push(result.secure_url);
+                resolve(result);
+              },
+            );
+
+            stream.end(file.buffer);
+          });
+        }),
+      );
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
 
 exports.getAllTours = factory.getAll(Tour);
 exports.getTour = factory.getOne(Tour, { path: "reviews" });
@@ -99,7 +230,7 @@ exports.getTourWithin = async (req, res, next) => {
     if (!lat || !lng)
       return new AppError(
         "Please provide latitude and longitude in the format lat,lng.",
-        400
+        400,
       );
 
     const radius = unit === "mi" ? distance / 3963.2 : distance / 6378.1;
@@ -127,7 +258,7 @@ exports.getDistances = async (req, res, next) => {
     if (!lat || !lng)
       return new AppError(
         "Please provide latitude and longitude in the format lat,lng.",
-        400
+        400,
       );
 
     const distances = await Tour.aggregate([
