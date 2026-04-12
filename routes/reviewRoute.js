@@ -6,13 +6,13 @@ const {
   updateReview,
   getReview,
 } = require("../controllers/review.controller");
-const protectRoute = require("../middleware/protectRoute");
+const protectedRoute = require("../middleware/protectedRoute");
 const restrictTo = require("../middleware/restrictTo");
 
 // Because by default, child router does NOT have access to parent router params.
 const router = express.Router({ mergeParams: true });
 
-router.use(protectRoute);
+router.use(protectedRoute);
 router.route("/").post(restrictTo("user"), createReview).get(getAllReviews);
 
 router

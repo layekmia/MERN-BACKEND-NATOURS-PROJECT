@@ -8,6 +8,7 @@ const hpp = require("hpp");
 const tourRouter = require("./routes/tourRoute");
 const useRouter = require("./routes/userRoute");
 const reviewRouter = require("./routes/reviewRoute");
+const bookingRouter = require("./routes/bookingRoute");
 const AppError = require("./utils/appError");
 const { globalErrorHandler } = require("./controllers/error.controller");
 
@@ -16,17 +17,17 @@ const app = express();
 
 // Global middleware
 
-app.set('query parser', 'extended');
+app.set("query parser", "extended");
 app.use(express.urlencoded({ extended: true }));
 
-
-app.use(cors({origin: "*"}));
+app.use(cors({ origin: "*" }));
 
 // set Security HTTP headers;
 app.use(helmet());
 
-app.use(express.json());
+app.use("/api/v1/bookings/webhook", express.raw({ type: "application/json" }));
 
+app.use(express.json());
 
 app.use(
   hpp({
@@ -38,7 +39,7 @@ app.use(
       "difficulty",
       "price",
     ],
-  })
+  }),
 );
 
 if (process.env.NODE_ENV === "development") {
@@ -71,6 +72,7 @@ app.get("/", (req, res) => {
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", useRouter);
 app.use("/api/v1/reviews", reviewRouter);
+app.use("/api/v1/bookings", bookingRouter);
 
 app.use((req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on the server`), 404);

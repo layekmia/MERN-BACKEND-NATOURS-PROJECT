@@ -19,7 +19,7 @@ const {
   updatePassword,
 } = require("../controllers/auth.controller");
 
-const protectRoute = require("../middleware/protectRoute");
+const protectedRoute = require("../middleware/protectedRoute");
 const restrictTo = require("../middleware/restrictTo");
 
 const router = express.Router();
@@ -28,9 +28,9 @@ router.post("/signup", signUp);
 router.post("/login", login);
 router.post("/forgotPassword", forgotPassword);
 router.patch("/resetPassword/:token", resetPassword);
-router.patch("/updatePassword", protectRoute, updatePassword);
+router.patch("/updatePassword", protectedRoute, updatePassword);
 
-router.use(protectRoute); // It apply this middleware all the route in below
+router.use(protectedRoute); // It apply this middleware all the route in below
 
 router.get("/me", getMe, getUser);
 router.patch("/updateMe", uploadUserPhoto, handleUserPhoto, updateMe);

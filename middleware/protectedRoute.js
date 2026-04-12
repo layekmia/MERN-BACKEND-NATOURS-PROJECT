@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const AppError = require("../utils/appError");
 const User = require("../model/userModel");
 
-const protectRoute = async (req, res, next) => {
+const protectedRoute = async (req, res, next) => {
   try {
     let token;
 
@@ -37,4 +37,4 @@ const protectRoute = async (req, res, next) => {
   }
 };
 
-module.exports = protectRoute;
+module.exports = protectedRoute;

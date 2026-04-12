@@ -2,8 +2,6 @@ const { Resend } = require("resend");
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-console.log(process.env.RESEND_API_KEY)
-
 exports.sendEmail = async ({ email, subject, message }) => {
   try {
     const response = await resend.emails.send({
@@ -91,6 +89,6 @@ exports.sendEmail = async ({ email, subject, message }) => {
 
     return response;
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 };

@@ -13,7 +13,7 @@ const {
   resizeTourImages,
 } = require("../controllers/tour.controller");
 const { aliasTopTours } = require("../middleware/aliasTopTours");
-const protectRoute = require("../middleware/protectRoute");
+const protectedRoute = require("../middleware/protectedRoute");
 const restrictTo = require("../middleware/restrictTo");
 const reviewRouter = require("../routes/reviewRoute");
 
@@ -24,12 +24,12 @@ router.use("/:tourId/reviews", reviewRouter);
 router.route("/top-5-cheap").get(aliasTopTours, getAllTours);
 router
   .route("/tour-stats")
-  .get(protectRoute, restrictTo("admin"), getTourStats);
+  .get(protectedRoute, restrictTo("admin"), getTourStats);
 
 router
   .route("/monthly-plan/:year")
   .get(
-    protectRoute,
+    protectedRoute,
     restrictTo("admin", "lead-guide", "guide"),
     getMonthlyPlan,
   );
@@ -43,7 +43,7 @@ router
   .route("/")
   .get(getAllTours)
   .post(
-    protectRoute,
+    protectedRoute,
     restrictTo("admin"),
     uploadToursImages,
     resizeTourImages,
@@ -53,12 +53,12 @@ router
   .route("/:id")
   .get(getTour)
   .patch(
-    protectRoute,
+    protectedRoute,
     restrictTo("admin"),
     uploadToursImages,
     resizeTourImages,
     updateTour,
   )
-  .delete(protectRoute, restrictTo("admin", "lead-guide"), deleteTour);
+  .delete(protectedRoute, restrictTo("admin", "lead-guide"), deleteTour);
 
 module.exports = router;
