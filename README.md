@@ -4,7 +4,7 @@ Here's a professional README for your backend repository:
 
 ---
 
-```markdown
+
 # 🏔️ Natours API - Backend
 
 RESTful API for the Natours adventure travel platform - a production-ready backend with authentication, tour management, booking system, and Stripe payment integration.
