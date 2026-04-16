@@ -4,16 +4,15 @@ Here's a professional README for your backend repository:
 
 ---
 
-
 # 🏔️ Natours API - Backend
 
 RESTful API for the Natours adventure travel platform - a production-ready backend with authentication, tour management, booking system, and Stripe payment integration.
 
 ## ✨ Live API
 
-[![API Status](https://img.shields.io/website?url=https%3A%2F%2Fnatours.nexotechit.com%2Fapi%2Fv1%2Ftours&label=API&color=22c55e)](https://natours.nexotechit.com/api/v1/tours)
+[![API Status](https://img.shields.io/website?url=https%3A%2F%2Fnatours.nexotechit.com%2Fapi%2Fv1%2Ftours&label=API&color=22c55e)](https://api.natoursa.nexotechit.com/api/v1/tours)
 
-**Base URL:** `https://natours.nexotechit.com/api/v1`
+**Base URL:** `https://api.natours.nexotechit.com/api/v1`
 
 ## 📋 Table of Contents
 
@@ -68,6 +67,7 @@ Natours Backend is a robust, production-ready REST API built with Node.js, Expre
 ## 🚀 Features
 
 ### Authentication & Users
+
 - User signup with email verification
 - Login with JWT (HttpOnly cookie)
 - Password reset via email
@@ -76,6 +76,7 @@ Natours Backend is a robust, production-ready REST API built with Node.js, Expre
 - Role-based permissions (admin/guide/user)
 
 ### Tours Management
+
 - CRUD operations with role protection
 - Advanced filtering, sorting, pagination
 - Geo-spatial queries (tours within radius)
@@ -84,18 +85,21 @@ Natours Backend is a robust, production-ready REST API built with Node.js, Expre
 - Tour guides population
 
 ### Reviews System
+
 - Nested routes (`/tours/:tourId/reviews`)
 - CRUD operations with ownership checks
 - Automatic rating aggregation
 - Duplicate review prevention
 
 ### Bookings & Payments
+
 - Stripe Checkout integration
 - Webhook for payment confirmation
 - Automatic booking creation
 - Booking history for users
 
 ### Security Features
+
 - Rate limiting (100 requests/hour)
 - Helmet.js for security headers
 - HPP protection with whitelisted fields
@@ -108,57 +112,57 @@ Natours Backend is a robust, production-ready REST API built with Node.js, Expre
 
 ### Authentication
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/users/signup` | Register new user |
-| POST | `/api/v1/users/login` | Login user |
-| POST | `/api/v1/users/forgotPassword` | Send password reset token |
-| PATCH | `/api/v1/users/resetPassword/:token` | Reset password |
-| PATCH | `/api/v1/users/updatePassword` | Update password (auth) |
-| PATCH | `/api/v1/users/updateMe` | Update profile |
-| DELETE | `/api/v1/users/deleteMe` | Deactivate account |
+| Method | Endpoint                             | Description               |
+| ------ | ------------------------------------ | ------------------------- |
+| POST   | `/api/v1/users/signup`               | Register new user         |
+| POST   | `/api/v1/users/login`                | Login user                |
+| POST   | `/api/v1/users/forgotPassword`       | Send password reset token |
+| PATCH  | `/api/v1/users/resetPassword/:token` | Reset password            |
+| PATCH  | `/api/v1/users/updatePassword`       | Update password (auth)    |
+| PATCH  | `/api/v1/users/updateMe`             | Update profile            |
+| DELETE | `/api/v1/users/deleteMe`             | Deactivate account        |
 
 ### Tours
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/tours` | Get all tours (with filters) |
-| GET | `/api/v1/tours/top-5-cheap` | Get top 5 cheapest |
-| GET | `/api/v1/tours/:id` | Get single tour |
-| GET | `/api/v1/tours/tour-stats` | Get tour statistics (admin) |
-| GET | `/api/v1/tours/monthly-plan/:year` | Monthly plan (admin/guide) |
-| GET | `/api/v1/tours/tours-within/:distance/center/:latlng/unit/:unit` | Tours within radius |
-| POST | `/api/v1/tours` | Create tour (admin) |
-| PATCH | `/api/v1/tours/:id` | Update tour (admin) |
-| DELETE | `/api/v1/tours/:id` | Delete tour (admin) |
+| Method | Endpoint                                                         | Description                  |
+| ------ | ---------------------------------------------------------------- | ---------------------------- |
+| GET    | `/api/v1/tours`                                                  | Get all tours (with filters) |
+| GET    | `/api/v1/tours/top-5-cheap`                                      | Get top 5 cheapest           |
+| GET    | `/api/v1/tours/:id`                                              | Get single tour              |
+| GET    | `/api/v1/tours/tour-stats`                                       | Get tour statistics (admin)  |
+| GET    | `/api/v1/tours/monthly-plan/:year`                               | Monthly plan (admin/guide)   |
+| GET    | `/api/v1/tours/tours-within/:distance/center/:latlng/unit/:unit` | Tours within radius          |
+| POST   | `/api/v1/tours`                                                  | Create tour (admin)          |
+| PATCH  | `/api/v1/tours/:id`                                              | Update tour (admin)          |
+| DELETE | `/api/v1/tours/:id`                                              | Delete tour (admin)          |
 
 ### Reviews
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/tours/:tourId/reviews` | Get tour reviews |
-| POST | `/api/v1/tours/:tourId/reviews` | Create review (auth) |
-| PATCH | `/api/v1/reviews/:id` | Update review (owner) |
-| DELETE | `/api/v1/reviews/:id` | Delete review (owner/admin) |
+| Method | Endpoint                        | Description                 |
+| ------ | ------------------------------- | --------------------------- |
+| GET    | `/api/v1/tours/:tourId/reviews` | Get tour reviews            |
+| POST   | `/api/v1/tours/:tourId/reviews` | Create review (auth)        |
+| PATCH  | `/api/v1/reviews/:id`           | Update review (owner)       |
+| DELETE | `/api/v1/reviews/:id`           | Delete review (owner/admin) |
 
 ### Bookings
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/bookings/checkout-session/:tourId` | Create Stripe session |
-| GET | `/api/v1/bookings/my-bookings` | Get user bookings |
-| POST | `/api/v1/bookings/webhook` | Stripe webhook (raw body) |
+| Method | Endpoint                                    | Description               |
+| ------ | ------------------------------------------- | ------------------------- |
+| GET    | `/api/v1/bookings/checkout-session/:tourId` | Create Stripe session     |
+| GET    | `/api/v1/bookings/my-bookings`              | Get user bookings         |
+| POST   | `/api/v1/bookings/webhook`                  | Stripe webhook (raw body) |
 
 ### Admin
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/admin/stats` | Dashboard statistics |
-| GET | `/api/v1/admin/users` | Get all users |
-| PATCH | `/api/v1/admin/users/:id/role` | Update user role |
-| DELETE | `/api/v1/admin/users/:id` | Delete user |
-| GET | `/api/v1/admin/bookings` | Get all bookings |
-| DELETE | `/api/v1/admin/bookings/:id` | Delete booking |
+| Method | Endpoint                       | Description          |
+| ------ | ------------------------------ | -------------------- |
+| GET    | `/api/v1/admin/stats`          | Dashboard statistics |
+| GET    | `/api/v1/admin/users`          | Get all users        |
+| PATCH  | `/api/v1/admin/users/:id/role` | Update user role     |
+| DELETE | `/api/v1/admin/users/:id`      | Delete user          |
+| GET    | `/api/v1/admin/bookings`       | Get all bookings     |
+| DELETE | `/api/v1/admin/bookings/:id`   | Delete booking       |
 
 ---
 
@@ -175,7 +179,7 @@ Natours Backend is a robust, production-ready REST API built with Node.js, Expre
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/natours-backend.git
+git clone https://github.com/layekmia/MERN-BACKEND-NATOURS-PROJECT.git
 cd natours-backend
 
 # Install dependencies
@@ -233,6 +237,7 @@ CLIENT_URL=http://localhost:5173
 ## 📊 Database Schema
 
 ### User Model
+
 ```javascript
 {
   name: String,
@@ -248,6 +253,7 @@ CLIENT_URL=http://localhost:5173
 ```
 
 ### Tour Model
+
 ```javascript
 {
   name: String,
@@ -271,6 +277,7 @@ CLIENT_URL=http://localhost:5173
 ```
 
 ### Booking Model
+
 ```javascript
 {
   tour: { type: ObjectId, ref: 'Tour' },
@@ -298,10 +305,10 @@ pnpm start
 
 ### Recommended Hosting
 
-| Platform | Link |
-|----------|------|
-| **Render** | [render.com](https://render.com) |
-| **Railway** | [railway.app](https://railway.app) |
+| Platform         | Link                                         |
+| ---------------- | -------------------------------------------- |
+| **Render**       | [render.com](https://render.com)             |
+| **Railway**      | [railway.app](https://railway.app)           |
 | **DigitalOcean** | [digitalocean.com](https://digitalocean.com) |
 
 ---
@@ -343,11 +350,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👨‍💻 Author
 
-**Your Name**
+**Layek Miah**
 
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [yourname](https://linkedin.com/in/yourname)
-- Portfolio: [your-portfolio.com](https://your-portfolio.com)
+- GitHub: [@layekmia](https://github.com/layekmia)
+- LinkedIn: [layekmiah-webdeveloper](https://www.linkedin.com/in/layekmiah-webdeveloper/)
+- Portfolio: [layekmiah.nexotechit.com](https://layekmiah.nexotechit.com/)
 
 ---
 
@@ -361,8 +368,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **Built with ❤️ using Node.js, Express, and MongoDB**
+
 ```
 
 ---
 
 ## 🎯 **Save this as `README.md` in your backend repository!** 🚀
+```
