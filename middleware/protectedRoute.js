@@ -11,11 +11,13 @@ const protectedRoute = async (req, res, next) => {
       req.headers.authorization.startsWith("Bearer ")
     ) {
       token = req.headers.authorization.split(" ")[1];
+    } else if (req.cookies && req.cookies.jwt) {
+      token = req.cookies.jwt;
     }
 
     if (!token) {
       return next(
-        new AppError("your are not login, please login to get access", 401)
+        new AppError("your are not login, please login to get access", 401),
       );
     }
 
@@ -26,7 +28,7 @@ const protectedRoute = async (req, res, next) => {
 
     if (user.changePasswordAfter(decoded.iat)) {
       return next(
-        new AppError("user recently changed password please login again", 401)
+        new AppError("user recently changed password please login again", 401),
       );
     }
 

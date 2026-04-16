@@ -37,10 +37,36 @@ exports.getCheckoutSession = async (req, res, next) => {
 
     res.status(200).json({
       status: "success",
-      session,
+      data: session,
     });
   } catch (err) {
     next(err);
+  }
+};
+
+exports.getMyBookings = async (req, res, next) => {
+  try {
+    const bookings = await Booking.find({ user: req.user._id })
+      .populate("tour")
+      .sort("-createdAt");
+
+    res.status(200).json({
+      status: "success",
+      results: bookings.length,
+      data: bookings,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getBookings = async (req, res, next) => {
+  try {
+    const bookings = await Booking.find();
+
+    return res.status(200).json({ status: "success", data:bookings });
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -58,6 +84,7 @@ const createBookingCheckout = async (session) => {
     tour,
     user: user._id,
     price,
+    pad: true,
   });
 };
 
@@ -79,7 +106,6 @@ exports.webhookCheckout = async (req, res, next) => {
       return new AppError(`Webhook error: ${err.message}`, 404);
     }
 
-    // 🔥 IMPORTANT
     if (event.type === "checkout.session.completed") {
       await createBookingCheckout(event.data.object);
     }

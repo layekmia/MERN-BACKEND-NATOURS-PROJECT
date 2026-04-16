@@ -19,7 +19,7 @@ const bookingSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
-  pad: {
+  paid: {
     type: Boolean,
     default: true,
   },
@@ -28,7 +28,8 @@ const bookingSchema = new mongoose.Schema({
 bookingSchema.pre(/^find/, function () {
   this.populate("user").populate({
     path: "tour",
-    select: "name",
+    select:
+      "_id name imageCover duration maxGroupSize startLocation ratingAverage ratingQuantity summary",
   });
 });
 

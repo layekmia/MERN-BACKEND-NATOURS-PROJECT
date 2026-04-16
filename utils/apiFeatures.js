@@ -6,17 +6,35 @@ class APIFeatures {
 
   filter() {
     const queryObj = { ...this.queryString };
-    const excludedFields = ["page", "sort", "limit", "fields"];
+    const excludedFields = ["page", "sort", "limit", "fields", "search"];
     excludedFields.forEach((field) => delete queryObj[field]);
 
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (m) => `$${m}`);
 
-    this.query = this.query.find(JSON.parse(queryStr));
+    let parsedQuery = JSON.parse(queryStr);
+
+    if (this.queryString.search) {
+      parsedQuery.$or = [
+        {
+          name: {
+            $regex: this.queryString.search,
+            $options: "i",
+          },
+        },
+        {
+          "startLocation.address": {
+            $regex: this.queryString.search,
+            $options: "i",
+          },
+        },
+      ];
+    }
+
+    this.query = this.query.find(parsedQuery);
 
     return this;
   }
-
   sort() {
     if (this.queryString.sort) {
       const sortBy = this.queryString.sort.split(",").join(" ");

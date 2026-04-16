@@ -1,5 +1,4 @@
 const multer = require("multer");
-const sharp = require("sharp");
 const cloudinary = require("../config/cloudinary");
 
 const Tour = require("../model/tourModel");
@@ -12,7 +11,7 @@ const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image")) {
     cb(null, true);
   } else {
-    cb(new AppError("Not an image! Only image can upload", 404));
+    cb(new AppError("Not an image! Only image can upload", 404), false);
   }
 };
 
@@ -27,7 +26,12 @@ exports.uploadToursImages = upload.fields([
 ]);
 
 exports.resizeTourImages = async (req, res, next) => {
-  if (!req.files || (!req.files.imageCover && !req.files.images)) return next();
+  const hasCoverImage = req.files?.imageCover?.length > 0;
+  const hasGalleryImages = req.files?.images?.length > 0;
+
+  if (!req.files || (!hasCoverImage && !hasGalleryImages)) {
+    return next();
+  }
 
   try {
     const tour = await Tour.findById(req.params.id);
@@ -36,28 +40,21 @@ exports.resizeTourImages = async (req, res, next) => {
     // 1) DELETE OLD COVER
     // =========================
     if (
-      req.files.imageCover &&
-      tour.imageCover &&
+      hasCoverImage &&
+      tour?.imageCover &&
       tour.imageCover.includes("cloudinary")
     ) {
       const publicId = tour.imageCover.split("/upload/")[1].split(".")[0];
-
       await cloudinary.uploader.destroy(publicId);
     }
 
     // =========================
     // 2) UPLOAD NEW COVER
     // =========================
-    if (req.files.imageCover) {
-      const result = await cloudinary.uploader.upload_stream({
-        folder: "tours",
-        transformation: [
-          { width: 2000, height: 1333, crop: "fill", quality: "auto" },
-        ],
-      });
+    if (hasCoverImage) {
+      const coverFile = req.files.imageCover[0];
 
-      // ⚠️ stream handling
-      await new Promise((resolve, reject) => {
+      const result = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           {
             folder: "tours",
@@ -67,20 +64,19 @@ exports.resizeTourImages = async (req, res, next) => {
           },
           (error, result) => {
             if (error) return reject(error);
-
-            req.body.imageCover = result.secure_url;
             resolve(result);
           },
         );
-
-        stream.end(req.files.imageCover[0].buffer);
+        stream.end(coverFile.buffer);
       });
+
+      req.body.imageCover = result.secure_url;
     }
 
     // =========================
     // 3) DELETE OLD GALLERY
     // =========================
-    if (req.files.images && tour.images?.length > 0) {
+    if (hasGalleryImages && tour?.images?.length > 0) {
       await Promise.all(
         tour.images.map(async (img) => {
           if (img.includes("cloudinary")) {
@@ -94,42 +90,59 @@ exports.resizeTourImages = async (req, res, next) => {
     // =========================
     // 4) UPLOAD NEW GALLERY
     // =========================
-
-    if (req.files.images) {
+    if (hasGalleryImages) {
       req.body.images = [];
 
       await Promise.all(
         req.files.images.map(async (file) => {
-          await new Promise((resolve, reject) => {
+          const result = await new Promise((resolve, reject) => {
             const stream = cloudinary.uploader.upload_stream(
               {
                 folder: "tours",
                 transformation: [
-                  {
-                    width: 2000,
-                    height: 1333,
-                    crop: "fill",
-                    quality: "auto",
-                  },
+                  { width: 2000, height: 1333, crop: "fill", quality: "auto" },
                 ],
               },
               (error, result) => {
                 if (error) return reject(error);
-
-                req.body.images.push(result.secure_url);
                 resolve(result);
               },
             );
-
             stream.end(file.buffer);
           });
+
+          req.body.images.push(result.secure_url);
         }),
       );
     }
 
     next();
   } catch (error) {
+    console.error("Upload error:", error);
     next(error);
+  }
+};
+
+exports.updateTourImages = async (req, res, next) => {
+  try {
+    const updateData = {};
+
+    if (req.body.imageCover) {
+      updateData.imageCover = req.body.imageCover;
+    }
+
+    if (req.body.images) {
+      updateData.images = req.body.images;
+    }
+
+    const tour = await Tour.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.status(200).json({ success: true, data: tour });
+  } catch (err) {
+    next(err);
   }
 };
 

@@ -38,7 +38,7 @@ exports.globalErrorHandler = (err, req, res, next) => {
     return res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
-      error: err,
+      error: err, 
       stack: err.stack,
     });
   }

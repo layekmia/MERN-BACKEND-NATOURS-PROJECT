@@ -6,6 +6,9 @@ const { createSendToken } = require("../utils/helper");
 const { sendEmail } = require("../utils/email");
 
 exports.signUp = async (req, res, next) => {
+  const defaultPhoto =
+    "https://res.cloudinary.com/dog7nlmag/image/upload/v1776093318/default_jc0ukh.jpg";
+
   try {
     const newUser = await User.create({
       name: req.body.name,
@@ -13,7 +16,7 @@ exports.signUp = async (req, res, next) => {
       password: req.body.password,
       confirmPassword: req.body.confirmPassword,
       role: req.body.role,
-      photo: req.body.photo,
+      photo: defaultPhoto,
     });
 
     createSendToken(newUser, 201, res);
@@ -57,9 +60,7 @@ exports.forgotPassword = async (req, res, next) => {
 
     await user.save({ validateBeforeSave: false });
 
-    const resetURL = `${req.protocol}://${req.get(
-      "host",
-    )}/api/v1/users/resetPassword/${resetToken}`;
+    const resetURL = `${process.env.CLIENT_URL}/auth/reset-password/${resetToken}`;
 
     try {
       await sendEmail({
@@ -126,13 +127,24 @@ exports.updatePassword = async (req, res, next) => {
 
     if (!user) return next(new AppError("User not found", 404));
 
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+    if (!strongPasswordRegex.test(req.body.password)) {
+      return next(
+        new AppError(
+          "Password must be at least 8 characters, include uppercase, lowercase and a number",
+          400,
+        ),
+      );
+    }
+
     const isCorrect = await bcrypt.compare(
       req.body.currentPassword,
       user.password,
     );
 
     if (!isCorrect) {
-      return next(new AppError("Current password is incorrect", 401));
+      return next(new AppError("Current password is not incorrect", 401));
     }
 
     user.password = req.body.password;
@@ -143,4 +155,16 @@ exports.updatePassword = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+exports.logout = (req, res) => {
+  res.cookie("jwt", "", {
+    httpOnly: true,
+    expires: new Date(0),
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  });
 };

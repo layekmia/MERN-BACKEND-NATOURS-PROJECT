@@ -17,6 +17,7 @@ const {
   forgotPassword,
   resetPassword,
   updatePassword,
+  logout,
 } = require("../controllers/auth.controller");
 
 const protectedRoute = require("../middleware/protectedRoute");
@@ -26,6 +27,7 @@ const router = express.Router();
 
 router.post("/signup", signUp);
 router.post("/login", login);
+router.get("/logout", logout);
 router.post("/forgotPassword", forgotPassword);
 router.patch("/resetPassword/:token", resetPassword);
 router.patch("/updatePassword", protectedRoute, updatePassword);

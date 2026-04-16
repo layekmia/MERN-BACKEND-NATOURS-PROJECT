@@ -39,9 +39,13 @@ const tourSchema = new mongoose.Schema(
     price: { type: Number, required: [true, "A tour must have a price"] },
     priceDiscount: {
       type: Number,
-      // custom validator
       validate: {
         validator: function (val) {
+          if (this.getUpdate) {
+            const update = this.getUpdate();
+            const price = update.$set?.price || update.price;
+            return val < price;
+          }
           return val < this.price;
         },
         message: "discount price ({VALUE}) should be below regular price",
@@ -113,6 +117,13 @@ tourSchema.virtual("reviews", {
   ref: "Review",
   foreignField: "tour",
   localField: "_id",
+});
+
+tourSchema.virtual("bookingCount", {
+  ref: "Booking",
+  foreignField: "tour",
+  localField: "_id",
+  count: true,
 });
 
 tourSchema.pre("save", async function (next) {

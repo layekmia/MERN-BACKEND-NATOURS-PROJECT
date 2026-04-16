@@ -4,27 +4,29 @@ const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const cors = require("cors");
 const hpp = require("hpp");
+const cookieParser = require("cookie-parser");
 
 const tourRouter = require("./routes/tourRoute");
 const useRouter = require("./routes/userRoute");
 const reviewRouter = require("./routes/reviewRoute");
 const bookingRouter = require("./routes/bookingRoute");
+const adminRouter = require("./routes/adminRoute");
 const AppError = require("./utils/appError");
 const { globalErrorHandler } = require("./controllers/error.controller");
 
 // Middlewares;
 const app = express();
+app.use(cookieParser());
 
 // Global middleware
 
 app.set("query parser", "extended");
 app.use(express.urlencoded({ extended: true }));
 
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 // set Security HTTP headers;
 app.use(helmet());
-
 app.use("/api/v1/bookings/webhook", express.raw({ type: "application/json" }));
 
 app.use(express.json());
@@ -73,6 +75,7 @@ app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", useRouter);
 app.use("/api/v1/reviews", reviewRouter);
 app.use("/api/v1/bookings", bookingRouter);
+app.use("/api/v1/admin", adminRouter);
 
 app.use((req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on the server`), 404);

@@ -10,7 +10,7 @@ exports.createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
   const cookieOptions = {
     expires: new Date(
-      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 1000
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 1000,
     ),
     httpOnly: true,
   };
@@ -21,7 +21,7 @@ exports.createSendToken = (user, statusCode, res) => {
   // Remove the password from the output
   user.password = undefined;
 
-  res.status(statusCode).json({ success: true, token, data: user });
+  res.status(statusCode).json({ success: true, data: user });
 };
 
 exports.filterObj = (obj, ...allowedFields) => {

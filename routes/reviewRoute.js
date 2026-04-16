@@ -5,6 +5,7 @@ const {
   deleteReview,
   updateReview,
   getReview,
+  getMyReviews,
 } = require("../controllers/review.controller");
 const protectedRoute = require("../middleware/protectedRoute");
 const restrictTo = require("../middleware/restrictTo");
@@ -15,6 +16,7 @@ const router = express.Router({ mergeParams: true });
 router.use(protectedRoute);
 router.route("/").post(restrictTo("user"), createReview).get(getAllReviews);
 
+router.get("/my-reviews", getMyReviews);
 router
   .route("/:id")
   .get(getReview)

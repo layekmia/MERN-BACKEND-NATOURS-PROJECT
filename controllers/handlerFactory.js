@@ -21,6 +21,8 @@ exports.deleteOne = (Model) => async (req, res, next) => {
 
 exports.updateOne = (Model) => async (req, res, next) => {
   try {
+    const oneDoc = await Model.findById(req.params.id);
+
     const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
@@ -38,7 +40,13 @@ exports.updateOne = (Model) => async (req, res, next) => {
 
 exports.createOne = (Model) => async (req, res, next) => {
   try {
-    const doc = await Model.create(req.body);
+    const data = {
+      ...req.body,
+      imageCover: req.body.imageCover || "default-cover.jpg",
+      images: req.body.images || [],
+    };
+
+    const doc = await Model.create(data);
 
     res.status(201).json({
       success: true,
@@ -73,7 +81,15 @@ exports.getAll = (Model) => async (req, res, next) => {
     let filter = {};
     if (req.params.tourId) filter = { tour: req.params.tourId };
 
-    const features = new APIFeatures(Model.find(filter), req.query)
+    // Get total count BEFORE pagination
+    const totalCount = await Model.countDocuments(filter);
+
+    let query = Model.find(filter);
+    if (Model.modelName === "Tour") {
+      query = query.populate("bookingCount");
+    }
+
+    const features = new APIFeatures(query, req.query)
       .filter()
       .sort()
       .limitFields()
@@ -83,7 +99,7 @@ exports.getAll = (Model) => async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      results: doc.length,
+      results: totalCount,
       data: doc,
     });
   } catch (err) {
