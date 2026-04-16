@@ -23,7 +23,12 @@ app.use(cookieParser());
 app.set("query parser", "extended");
 app.use(express.urlencoded({ extended: true }));
 
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://natours.nexotechit.com"],
+    credentials: true,
+  }),
+);
 
 // set Security HTTP headers;
 app.use(helmet());
